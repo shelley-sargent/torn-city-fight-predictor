@@ -33,7 +33,7 @@ This project implements a repeatable data pipeline:
 
 This pipeline was originally designed as the data foundation for a predictive modeling system.
 
-As more data is aggregated, an unsupervised learning model (K-means clustering) will be applied to participant statistical profiles and historical outcomes to identify performance-based groupings and patterns.data
+As more data is aggregated, an unsupervised learning model (K-means clustering) will be applied to participant statistical profiles and historical outcomes to identify performance-based groupings and patterns.
 
 The goal is to use these cluseters as inputs for a predictive model capable of estimating conflict outcomes.
 
