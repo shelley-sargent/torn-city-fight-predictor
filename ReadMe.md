@@ -38,14 +38,14 @@ As more data is aggregated, an unsupervised learning model (K-means clustering) 
 The goal is to use these clusters as inputs for a predictive model capable of estimating conflict outcomes.
 
 ### Architecture
-REST API
-↓
-get_data.py (extract / transform / enrich)
-↓
-db_connect.py (bulk upsert via psycopg2.execute_values)
-↓
-PostgreSQL (Supabase)
-↑
+REST API<br />
+⬇️ <br />
+get_data.py (extract / transform / enrich) <br />
+⬇️ <br />
+db_connect.py (bulk upsert via psycopg2.execute_values) <br />
+⬇️ <br />
+PostgreSQL (Supabase) <br />
+⬆️ <br /> 
 cron + run_upload.sh (every 6 hours)
 
 > Data source note: This repo is designed for the Torn City REST API.
