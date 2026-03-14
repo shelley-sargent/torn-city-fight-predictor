@@ -3,9 +3,10 @@ from datetime import date
 import api
 import time
 import pandas as pd
+import numpy as np
 
 # -- break personal stats into chunks (API call allows for 10 maximum)
-stat_chunks = stat_chunks = [
+stat_chunks = [
     "attackswon,attackslost,attacksdraw,attacksassisted,defendswon,defendslost,defendsstalemated,elo,yourunaway,theyrunaway",
     "attackhits,attackmisses,attackdamage,bestdamage,onehitkills,attackcriticalhits,bestkillstreak,retals,moneymugged,largestmug",
     "itemslooted,respectforfaction,rankedwarhits,raidhits,xantaken,cantaken,victaken,drugsused,overdosed,boostersused",
@@ -53,7 +54,7 @@ print(f"{len(member_list)} members found.")
 
 player_personal_stats = {}
 
-# -- pull stats for each members
+# -- pull stats for each member
 for i, member in enumerate(member_list):
     pid = member['id']
     name = member['name']
