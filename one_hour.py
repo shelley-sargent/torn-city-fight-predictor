@@ -1,6 +1,7 @@
 import players.df as df
 import psycopg2
 import pandas as pd
+from datatime import date
 
 '''
 File set to run in cron every hour.
