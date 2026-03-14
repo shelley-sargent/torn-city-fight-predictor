@@ -2,7 +2,7 @@
 
 This project is designed to regularly pull and store data from Torn City's REST API. The goal is to track individual and faction progress over time, and to create a usable resource for faction administrators to access performance information for both publication and analysis.
 
-Torn City is a social browser-based MMO that requires coordinated gameplay within different groups known as "factions". To be successful, faction leadership needs to be able to see overall performance as well as individual strengths and weaknesses to identify issues and help players maximize their performance.
+Torn City is a social browser-based MMO that requires coordinated gameplay within different groups known as "factions". To be successful, faction leadership needs to be able to see overall progress and participation as well as individual strengths and weaknesses to identify issues and help players maximize their performance.
 
 ## Current Implementation
 
