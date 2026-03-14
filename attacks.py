@@ -197,7 +197,7 @@ def upload():
         """
 
         execute_values(cursor, query, values)
-        print(f"✅ Query executed successfully. {datetime.now()}")
+        print(f"✅ Query executed successfully. {datetime.datetime.now()}")
 
         conn.commit()
         cursor.close()
