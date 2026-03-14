@@ -1,167 +1,101 @@
-<a id="readme-top"></a>
+# Torn API Automation
 
-<div align="center">
-<h3 align="center">Torn City Statistics Collector</h3>
+This project is designed to regularly pull and store data from Torn City's REST API. The goal is to track individual and faction progress over time, and to create a usable resource for faction administrators to access performance information for both publication and analysis.
 
-  <p align="center">
-    A Python-based data pipeline that collects Torn City faction data (members and attacks) via the REST API and saves snapshots into a PostgreSQL database for historical analysis.
-    <br />
-    <a href="https://github.com/shelley-sargent/api-to-postgres-project/"><strong>Explore the docs »</strong></a>
-    <br />
-  </p>
-</div>
+Torn City is a social browser-based MMO that requires coordinated gameplay within different groups known as "factions". To be successful, faction leadership needs to be able to see overall performance as well as individual strengths and weaknesses to identify issues and help players maximize their performance.
 
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#project-structure">Project Structure</a></li>
-    <li><a href="#scripts-and-entry-points">Scripts and Entry Points</a></li>
-    <li><a href="#environment-variables">Environment Variables</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ol>
-</details>
+## Current Implementation
 
-## About The Project
+Currently, the pipeline pulls two different datasets and runs them via cron at different intervals:
+- **Member statistics** (hourly) - tracks individual faction member progression
+- **Attack logs** (every 6 hours) - analyzes incoming and outgoing attacks across the faction
 
-This project implements a repeatable data pipeline designed to run on a schedule (e.g., Raspberry Pi via cron) to track faction performance in Torn City.
+The data is stored via PostgreSQL on a local Linux server.
 
-### Key Features
-- **API Extraction:** Pulls data from Torn City REST API (v2).
-- **Data Normalization:** Cleans IDs, timestamps, and numeric types using `pandas` and `numpy`.
-- **Enrichment:** Merges participant-level statistics with event/attack records.
-- **Database Storage:** Upserts data into PostgreSQL (Supabase) with `psycopg2`.
-- **Snapshotting:** Captures daily snapshots of player stats for time-series analysis.
+## Project Goals
 
-### Project Goal
-Originally designed as the data foundation for a predictive modeling system. Collected data can be used for unsupervised learning (K-means clustering) to identify performance patterns and estimate conflict outcomes.
+### Short-term
+Create a Fast API app that allows other leaders to easily access the information either via API or through CSVs. This app needs to cater to varying degrees of technical ability and a wide variety of data queries.
 
-### Architecture
-```text
-Torn API (v2) 
-      ↓
-[api.py] (Wrapper)
-      ↓
-[attacks.py / players.py] (Transformation & Merge)
-      ↓
-[six_hours.py / one_hour.py] (DB Upsert)
-      ↓
-PostgreSQL (Supabase)
-```
+### Long-term
+Use unsupervised machine learning to analyze both attack outcomes and player statistics to predict the outcome of a fight between two individuals.
 
-### Built With
-* [Python 3.10+](https://www.python.org/)
-* [pandas](https://pandas.pydata.org/)
-* [PostgreSQL](https://www.postgresql.org/)
-* [psycopg2-binary](https://www.psycopg.org/)
-* [requests](https://requests.readthedocs.io/)
-* [python-dotenv](https://github.com/theskumar/python-dotenv)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Getting Started
+## Using the Script
 
 ### Prerequisites
-- Python 3.10 or higher.
-- A PostgreSQL database (e.g., [Supabase](https://supabase.com/)).
-- Torn City API key(s).
+- Access to a PostgreSQL database (local server or cloud platform like Supabase)
+- Torn City API key(s)
+- Python 3.x installed
+- Linux/Unix system with cron (e.g., Raspberry Pi)
 
-### Installation
-1. Clone the repo:
-   ```sh
-   git clone https://github.com/shelley-sargent/api-to-postgres-project.git
-   ```
-2. Create and activate a virtual environment (recommended):
-   ```sh
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```sh
+### Setup
+
+1. **Clone the repository**
+```bash
+   git clone https://github.com/your-username/torn-api-automation.git
+   cd torn-api-automation
+```
+
+2. **Install dependencies**
+```bash
    pip install -r requirements.txt
-   ```
-4. Set up your `.env` file (see [Environment Variables](#environment-variables)).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Project Structure
-```text
-.
-├── api.py           # Core Torn API wrapper (handles rotation of keys)
-├── attacks.py       # Data processing logic for faction attacks
-├── players.py       # Data processing logic for member statistics
-├── six_hours.py     # Entry point for uploading attacks (intended for cron every 6h)
-├── one_hour.py      # Entry point for uploading player stats (intended for cron every 1h)
-├── requirements.txt # Python dependencies
-├── .env             # Environment configuration (not in source control)
-└── ReadMe.md        # This file
 ```
 
-## Scripts and Entry Points
-
-### `six_hours.py`
-The primary entry point for collecting faction attack data. 
-- Imports processed attack data from `attacks.py`.
-- Connects to the database and performs a bulk upsert into the `attacks` table.
-- Uses `COALESCE` to ensure existing data is preserved during partial updates.
-- **Run manually:** `python six_hours.py`
-
-### `one_hour.py`
-Collects and uploads frequently changing individual player stats.
-- **Run manually:** `python one_hour.py`
-
-### `api.py`
-A helper module providing a `get()` function to interact with Torn API v2. It includes support for rotating multiple API keys from the `.env` file.
-
-### `attacks.py` & `players.py`
-These modules contain the logic for data cleaning, transformation, and merging using `pandas`. They are imported by the entry point scripts.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Environment Variables
-Create a `.env` file in the root directory with the following variables:
-
-| Variable | Description |
-| :--- | :--- |
-| `API_KEYS` | A JSON-formatted string of API keys: `{"KEY": "NAME"}` |
-| `DB_HOST` | Database host address |
-| `DB_NAME` | Database name |
-| `DB_USER` | Database username |
-| `DB_PASSWORD` | Database password |
-| `DB_PORT` | Database port (default: 5432) |
-
-## Scheduling (Cron)
-To run this automatically on a Linux/Raspberry Pi system, you can add entries to your crontab (`crontab -e`):
-
-```cron
-# Example (TODO: Adjust paths to your local environment)
-0 */6 * * * /path/to/venv/bin/python /path/to/project/six_hours.py >> /path/to/logs/attacks.log 2>&1
-0 * * * * /path/to/venv/bin/python /path/to/project/one_hour.py >> /path/to/logs/players.log 2>&1
+3. **Configure environment variables**
+   
+   Edit `.env.example` and save it as `.env`:
+```bash
+   # API Configuration
+   API_KEYS={"username": "your_api_key", "username2": "your_api_key2"}  # Supports multiple keys; script selects randomly
+   FACTION=12345  # Your faction ID
+   
+   # Database Configuration
+   DB_HOST=your-database-host
+   DB_NAME=your-database-name
+   DB_USER=your-username
+   DB_PASSWORD=your-password
+   DB_PORT=5432
 ```
 
-## Tests
-Currently, there is no formal test suite. 
-- **TODO:** Implement unit tests for API parsing and data transformation logic.
-- Basic functional tests are present as commented-out sections in `api.py` and `attacks.py`.
+4. **Set up database schema**
+   
+   See the [Database Schema](#database-schema) section below for table creation scripts.
+
+5. **Configure cron jobs**
+```bash
+   crontab -e
+```
+   
+   Add the following lines:
+```bash
+   0 */6 * * * /usr/bin/python3 /path/to/file/attacks.py >> /path/to/file/cron.log 2>&1
+   0 * * * * /usr/bin/python3 /path/to/file/players.py >> /path/to/file/cron.log 2>&1
+```
+
+## Database Schema
+
+*(Documentation to be added)*
+
+## Skills Demonstrated
+
+- **Python** - Core scripting language
+- **Pandas** - Data manipulation and transformation
+- **Data Cleaning** - Handling missing values, type conversions, normalization
+- **REST API** - Integration with Torn City API
+- **Cron** - Automated task scheduling
+- **PostgreSQL** - Relational database management
+- **psycopg2** - Database connectivity
 
 ## License
-Distributed under the MIT License. (TODO: Verify license or add `LICENSE` file).
+
+Copyright (c) 2026 Shelley Sargent
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## Contact
-Project Link: [https://github.com/shelley-sargent/api-to-postgres-project/](https://github.com/shelley-sargent/api-to-postgres-project/)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+[GitHub](https://www.github.com/shelley-sargent) | [Email](shelleysargent0@gmail.com)
