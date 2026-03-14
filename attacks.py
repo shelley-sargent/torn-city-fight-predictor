@@ -151,6 +151,14 @@ bigint_cols = [
 for col in bigint_cols:
     full_attack_info[col] = pd.to_numeric(full_attack_info[col], errors='coerce').astype('Int64')
 
+import numpy as np
+for col in full_attack_info.select_dtypes(include='number').columns:
+    try:
+        max_val = full_attack_info[col].max()
+        print(f"{col}: {max_val}")
+    except:
+        print(f"{col}: error")
+
 # -- connect to database
 def upload():
     try:
