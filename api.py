@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def get(api_name, version=2, start=0, end=0, fac_id=int(os.getenv('FACTION_ID')), user_id=2864080, cat=all, limit=1000, war=0, stats=''):
+faction_id = int(os.getenv('FACTION_ID'))
+
+def get(api_name, version=2, start=0, end=0, fac_id=faction_id, user_id=2864080, cat=all, limit=1000, war=0, stats=''):
 
     # -- Load rotating API keys from .env file
     api_keys = os.getenv("API_KEYS") # Retrieves API keys
